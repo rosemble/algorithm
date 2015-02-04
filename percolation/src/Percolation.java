@@ -9,7 +9,7 @@ public class Percolation {
 	private int map[][];
 	private int n;
     private int id[];
-    private int sz[];    	
+    private int sz[];   	
 	
 	private int xyToi(int x, int y)
 	{
