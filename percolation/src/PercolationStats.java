@@ -25,9 +25,11 @@ public class PercolationStats {
 			Percolation p = new Percolation(n);
 			while (!p.percolates())			
 			{	
+		
 				int i = StdRandom.uniform(n)+1;
 				int j = StdRandom.uniform(n)+1;
-				//System.out.println(i+","+j);
+				//System.out.println(i+","+j + " " + (t*(i-1) + (j-1)));
+				
 				
 				//System.out.print(i+","+j+ " ");
 				
@@ -35,15 +37,16 @@ public class PercolationStats {
 //					System.out.println("!!!!!!!!!!!!!!!!!!!!! " + i);
 				
 				if (!p.isOpen(i,j))			
-				{					
+				{				
+					//System.out.println(count[t]);
 					count[t] += 1;
 					p.open(i, j);
 				}				
 			}
-			p.printMap();
+			//p.printMap();
 			//p.printlinear();
 			
-			System.out.println();
+			//System.out.println();
 			scaledCount[t] = count[t]/(double)(n*n);
 			t++;
 		}
@@ -70,12 +73,12 @@ public class PercolationStats {
 	   
 	public static void main(String[] args)   // test client (optional)*/
 	{
-		//PercolationStats ps = new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+		PercolationStats ps = new PercolationStats(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
 		
 		//PercolationStats ps = new PercolationStats(200,100);		
 		//PercolationStats ps = new PercolationStats(2,10000);
 		
-		PercolationStats ps = new PercolationStats(10,10);
+		//PercolationStats ps = new PercolationStats(2,10000);
 
 		System.out.println(ps.mean());
 		System.out.println(ps.stddev());		

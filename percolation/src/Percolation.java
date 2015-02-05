@@ -6,17 +6,16 @@
 
 public class Percolation {
 	
-	private int map[][];
 	private int n;
     private int id[];
     private int sz[];   	
+	private WeightedQuickUnionUF wuf;
 	
 	private int xyToi(int x, int y)
 	{		
 		if (x <= 0 || x > n) throw new IndexOutOfBoundsException("row index i out of bounds:" + x);
 		if (y <= 0 || y > n) throw new IndexOutOfBoundsException("row index i out of bounds" + y);
-		
-		//System.out.println("(" + x + "," + y + ")");
+
 		return n*(x-1) + (y-1);		 
 	}
 	
@@ -26,118 +25,85 @@ public class Percolation {
 		{
 			throw new java.lang.IllegalArgumentException();
 		}
-//		n = N;
-//		map = new int[n][n];
-//		for (int x = 0; x < n; x++) {
-//			for (int y = 0; y < n; y++) {
-//				map[x][y] = 0;
-//			}
-//		}
 		
-		n = N;
+		n = N;		
         id = new int[N*N];
-        sz = new int[N*N];
+        sz = new int[N*N+2];
+        wuf = new WeightedQuickUnionUF(n*n+2);
         for (int i = 0; i < N*N; i++) {
-            //id[i] = i;
-        	id[i] = 0;
-            //sz[i] = 1;        	
+        	//id[i] = 0;        	
         	sz[i] = 0;
         }
-		//WeightedQuickUnionUF uf = new WeightedQuickUnionUF(N*N);
+        
+        sz[n*n] = 1;
+        sz[n*n+1] = 1;        
+	}
+	
+	private void union(int p, int q)
+	{
+		if ( !wuf.connected(p, q))
+		{
+			wuf.union(p, q);
+		}
 	}
 
 	public void open(int i, int j)          // open site (row i, column j) if it is not open already
-	{		
-		
-//		if ( i == 0 || ( j > 0 && map[i][j-1] == 2 ) || ( j+1 < n && map[i][j+1] == 2 )
-//				|| ( i > 0 && map[i-1][j] == 2 ) || ( i+1 < n && map[i+1][j] == 2 ) )			
-//		{
-//			map[i][j] = 2;						
-//			if ( j > 0 && map[i][j-1] == 1 ) 
-//			{
-//				open(i,j-1);
-//			}
-//			if ( j+1 < n && map[i][j+1] == 1 ) 
-//			{
-//				open(i,j+1);
-//			}
-//			if ( i > 0 && map[i-1][j] == 1 )
-//			{
-//				open(i-1,j);
-//			}
-//			if ( i+1 < n && map[i+1][j] == 1 ) 
-//			{
-//				open(i+1,j);
-//			}
-//		}
-//		else 
-//			map[i][j] = 1;				
-		
+	{	
 		int p = xyToi(i, j);
-		id[p] = p;
+		//id[p] = p;
 		sz[p] = 1;
 		
+		
+		if ( i == 1 )
+		{
+			union(p, n*n);
+		} 
+		else if ( i == n )
+		{
+			union(p, n*n+1);
+		}
+
 		if ( j-1 >= 1 && isOpen(i,j-1) )
-			union(xyToi(i,j), xyToi(i,j-1));
+			union(p, xyToi(i,j-1));
 		
 		if ( j+1 <= n && isOpen(i,j+1) )
-			union(xyToi(i,j), xyToi(i,j+1));
+			union(p, xyToi(i,j+1));
 		
 		if ( i-1 >= 1 && isOpen(i-1,j) )
-			union(xyToi(i,j), xyToi(i-1,j));
+			union(p, xyToi(i-1,j));
 		
 		if ( i+1 <= n && isOpen(i+1,j) )
-			union(xyToi(i,j), xyToi(i+1,j));
+			union(p, xyToi(i+1,j));
 	}
 	
 	private boolean connected(int p, int q) {
-		System.out.println("connected:" + p + "(" + find(p) + ") " + q + "(" + find(q) + ")");
-        return find(p) == find(q) && find(p) != 0;
+		//System.out.println("connected?" + p + "(" + find(p) + ") " + q + "(" + find(q) + ")");
+        return find(p) == find(q) && ( sz[find(p)] != 0 );
     }
 	
-	private  void union(int p, int q) {
-        int rootP = find(p);
-        int rootQ = find(q);
-        if (rootP == rootQ) return;
-
-        // make smaller root point to larger one
-        if   (sz[rootP] < sz[rootQ]) { id[rootP] = rootQ; sz[rootQ] += sz[rootP]; }
-        else                         { id[rootQ] = rootP; sz[rootP] += sz[rootQ]; }
-        //count--;
-    }
+//	private  void union(int p, int q) {
+//        int rootP = find(p);
+//        int rootQ = find(q);
+//        
+//        if (rootP == rootQ) return;
+//
+//        // make smaller root point to larger one
+//        if   (sz[rootP] < sz[rootQ]) { id[rootP] = rootQ; sz[rootQ] += sz[rootP]; }
+//        else                         { id[rootQ] = rootP; sz[rootP] += sz[rootQ]; }
+//    }
 	
 	private int find(int p)
-	{
-		while (p != id[p])
+	{		
+		while (p != id[p] )
             p = id[p];
         return p;
 	}
 	
 	public boolean isOpen(int i, int j)     // is site (row i, column j) open?
 	{		
-//		if ( map[i][j] == 0 )
-//			return false;
-//		else
-//			return true;	
-		
-//		int p = xyToi(i,j);
-//		int r = p;
-//		
-//		while (r != id[r])
-//            r = id[r];
-//		if ( p == r ) 
-//			return false;
-//		else 
-//			return true;
-		
 		int p = xyToi(i,j);
-				
-		if ( id[p] == 0 ) 
-			return false;
-		else 
-			return true;
-        //return p;
-        
+		
+		return sz[p] == 1;		
 	}
 	
 	public boolean isFull(int i, int j)     // is site (row i, column j) full?
@@ -145,17 +111,20 @@ public class Percolation {
 		
 		int p = xyToi(i,j);
 		
-		//System.out.println(i + "," + j);
-		boolean result = false;
-		for (int y = 1; y <= n; y++)
-		{
-			//System.out.println(p + " " + xyToi(1,y));
-			if ( connected(p, xyToi(1, y))) 
-			{				
-				result = true;
-				break;
-			}
-		}
+		boolean result = wuf.connected(p, n*n);
+//		//System.out.println(i + "," + j);
+//		boolean result = false;
+//		for (int y = 1; y <= n; y++)
+//		{
+//			//System.out.println(p + " " + xyToi(1,y));
+//			if ( isOpen(i,j) &&  connected(p, xyToi(1, y))) 
+//			{				
+//				System.out.println("connected" + p + "(" + find(p) + ") " + xyToi(1, y) + "(" + find(xyToi(1, y)) + ")");
+//				//System.out.println(p + " " + xyToi(1,y));
+//				result = true;
+//				break;
+//			}
+//		}
 		
 		return result;
 		
@@ -202,38 +171,41 @@ public class Percolation {
 	
 	public boolean percolates()             // does the system percolate?
 	{
-		boolean result = false;
-		for (int y = 1; y <= n; y++) {
-			if (isFull(n,y))
-			{
-				//printMap();
-				result = true;
-				break;
-			}
-			System.out.println("PER:" + n + "," + y );
-			
-		}		
+//		boolean result = false;
+//		for (int y = 1; y <= n; y++) {
+//			
+//			//printMap();
+//			if (isFull(n,y))
+//			{
+//				//printMap();
+//				result = true;
+//				break;
+//			}
+//			//System.out.println("PER:" + n + "," + y );
+//			
+//		}
+		
+		boolean result = wuf.connected(n*n, n*n+1);
 		return result;
 	}
-
 	
-	public void printMap()
-	{
-		for (int x = 1; x <= n; x++) {
-			for (int y = 1; y <= n; y++){
-				System.out.print(id[xyToi(x,y)] + " ");										
-			}
-			System.out.println();
-		}
-		
-		System.out.println();
-	}
-	
-	public void printlinear()
-	{
-		System.out.println(id.length);
-		for(int i = 0; i < id.length; i++)
-			System.out.print(id[i] + " ");
-	}
+//	public void printMap()
+//	{
+//		for (int x = 1; x <= n; x++) {
+//			for (int y = 1; y <= n; y++){
+//				System.out.print(id[xyToi(x,y)] + " ");										
+//			}
+//			System.out.println();
+//		}
+//		
+//		System.out.println();
+//	}
+//	
+//	public void printlinear()
+//	{
+//		System.out.println(id.length);
+//		for(int i = 0; i < id.length; i++)
+//			System.out.print(id[i] + " ");
+//	}
 	
 }
